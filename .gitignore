@@ -1,0 +1,4 @@
+postgres-data
+.vscode
+.env
+logs

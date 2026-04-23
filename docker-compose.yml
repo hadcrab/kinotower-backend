@@ -8,9 +8,9 @@ services:
       POSTGRES_DB: kinotower
       PGDATA: /var/lib/postgresql/data
     ports:
-      - "5467:5432"
+      - "5432:5432"
     volumes:
-      - ./postgres-data/db:/var/lib/postgresql/data
+      - ./.postgres-data/db:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d kinotower"]
       interval: 5s

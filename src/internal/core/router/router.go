@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	core_logger "github.com/matuha07/kinotower-go/src/internal/core/logger"
+	core_logger "github.com/hadcrab/kinotower-backend/src/internal/core/logger"
 )
 
 type Router struct {

@@ -3,8 +3,8 @@ package main
 import (
 	"log/slog"
 
-	core_logger "github.com/matuha07/kinotower-go/src/internal/core/logger"
-	core_server "github.com/matuha07/kinotower-go/src/internal/core/server"
+	core_logger "github.com/hadcrab/kinotower-backend/src/internal/core/logger"
+	core_server "github.com/hadcrab/kinotower-backend/src/internal/core/server"
 )
 
 func main() {

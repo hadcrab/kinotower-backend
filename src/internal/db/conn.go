@@ -168,6 +168,12 @@ type GenderRepository interface {
 	ListGenders(ctx context.Context) ([]Gender, error)
 }
 
+type UserRepository interface {
+	CreateUser(ctx context.Context, u *User) (int, error)
+	GetUserByEmail(ctx context.Context, email string) (*User, error)
+	GetUserByID(ctx context.Context, id int) (*User, error)
+}
+
 type filmRepoSQL struct {
 	db *sqlx.DB
 }
@@ -182,6 +188,50 @@ type genderRepoSQL struct {
 
 func NewGenderRepository(db *DB) GenderRepository {
 	return &genderRepoSQL{db: db.sqlx}
+}
+
+type userRepoSQL struct {
+	db *sqlx.DB
+}
+
+func NewUserRepository(db *DB) UserRepository {
+	return &userRepoSQL{db: db.sqlx}
+}
+
+func (r *userRepoSQL) CreateUser(ctx context.Context, u *User) (int, error) {
+	if u.CreatedAt.IsZero() {
+		u.CreatedAt = time.Now().UTC()
+	}
+	var id int
+	query := `INSERT INTO users (fio, birthday, gender_id, email, password, created_at) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`
+	if err := r.db.GetContext(ctx, &id, query, u.FIO, u.Birthday, u.GenderID, u.Email, u.Password, u.CreatedAt); err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
+func (r *userRepoSQL) GetUserByEmail(ctx context.Context, email string) (*User, error) {
+	var u User
+	query := `SELECT id, fio, birthday, gender_id, email, password, created_at, deleted_at FROM users WHERE email = $1 AND deleted_at IS NULL`
+	if err := r.db.GetContext(ctx, &u, query, email); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, ErrNotFound
+		}
+		return nil, err
+	}
+	return &u, nil
+}
+
+func (r *userRepoSQL) GetUserByID(ctx context.Context, id int) (*User, error) {
+	var u User
+	query := `SELECT id, fio, birthday, gender_id, email, password, created_at, deleted_at FROM users WHERE id = $1 AND deleted_at IS NULL`
+	if err := r.db.GetContext(ctx, &u, query, id); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, ErrNotFound
+		}
+		return nil, err
+	}
+	return &u, nil
 }
 
 func sanitizeSortBy(s string) string {

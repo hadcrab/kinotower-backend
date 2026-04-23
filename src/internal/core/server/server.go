@@ -5,8 +5,12 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"os"
+	"time"
 
 	core_db "github.com/hadcrab/kinotower-backend/src/internal/db"
+	authpkg "github.com/hadcrab/kinotower-backend/src/internal/auth"
+	handler "github.com/hadcrab/kinotower-backend/src/internal/handler"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -39,6 +43,15 @@ func NewServer(addr string) *Server {
 
 	mux.Get("/api/v1", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Welcome to the API!"))
+	})
+
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		secret = "changeme"
+	}
+	authSvc := authpkg.NewService(core_db.NewUserRepository(dbConn), secret, 24*time.Hour)
+	mux.Route("/api/v1", func(r chi.Router) {
+		handler.RegisterAuthRoutes(r, authSvc)
 	})
 
 	mux.Route("/api/v1/films", func(r chi.Router) {
